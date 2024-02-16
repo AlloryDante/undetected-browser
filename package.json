@@ -1,6 +1,6 @@
 {
   "name": "undetected-browser",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Puppeteer implementation with more anti-detection methods for interacting with websites",
   "keywords": [
     "browser",
@@ -13,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/devopshint/npm_project.git"
+    "url": "https://github.com/AlloryDante/undetected-browser.git"
   },
   "main": "index.js",
   "scripts": {
