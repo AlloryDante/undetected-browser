@@ -1,12 +1,25 @@
 {
   "name": "undetected-browser",
   "version": "1.0.0",
-  "description": "",
+  "description": "Puppeteer implementation with more anti-detection methods for interacting with websites",
+    "keywords": [
+        "browser",
+        "fingerprint",
+        "stealth",
+        "undetected",
+        "puppeteer",
+        "undetected-browser",
+        "fingerprint-browser"
+    ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devopshint/npm_project.git"
+},
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Allory Dante",
   "license": "ISC",
   "dependencies": {
     "puppeteer": "^22.0.0"
