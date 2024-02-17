@@ -1,9 +1,11 @@
 const CheckFingerprint = require("./src/PageFingerprint");
+const CaptchaTester = require("./src/CaptchaTester");
 
 class UndetectableBrowser {
   constructor(_browser) {
     this.browser = _browser;
     this.verbose = false;
+    this.adblockURLs = [];
   }
 
   async extendBrowser(browser) {
@@ -36,6 +38,26 @@ class UndetectableBrowser {
     page.waitToLoad = async function navigate(url) {
       await page.waitForNavigation({ waitUntil: ["load", "networkidle2"] });
     };
+    page.smartWaitForSelector = async function smartWaitForSelector(selector, delay) {
+      if (await page.$(selector)) return;
+      if (!delay) {
+        delay = 5000;
+      }
+      try {
+        await page.waitForSelector(selector);
+      } catch (error) {
+        await delay(delay);
+      }
+    };
+
+    page.$$$ = async function querySelectorInFrame(selector) {
+      const iframes = await page.$$("iframe");
+      for (const iframe of iframes) {
+        const potentialElement = await searchSelectorOrNextIframe(iframe, selector);
+        if (potentialElement) return potentialElement;
+      }
+      return undefined;
+    };
 
     page.simulateTyping = async function simulateTyping(selector, text, options = {}) {
       const { delay = 20, variation = 0.4 } = options;
@@ -48,7 +70,7 @@ class UndetectableBrowser {
 
     page.simulateMouseClick = async function simulateMouseClick(selector) {
       if (!selector) {
-        throw new Error(`${selector} was not defined.`);
+        throw new Error(`${selector} was not defined and it cannot be clicked.`);
       }
       let element;
       if (typeof selector == "object") {
@@ -60,7 +82,7 @@ class UndetectableBrowser {
       if (!element) {
         throw new Error(`Element with selector ${selector} not found in order to click on it.`);
       }
-
+      await element.scrollIntoView();
       const box = await element.boundingBox();
       const offsetX = box.width / 2 + box.x;
       const offsetY = box.height / 2 + box.y;
@@ -114,15 +136,11 @@ class UndetectableBrowser {
     };
 
     page.closeOtherPages = async function closeOtherPages() {
-      let pages = await this.browser.pages();
-      let pagesToClose = [];
-      for (var i = 0; i < pages.length; i++) {
-        if (pages[i].mainFrame()._id != page.mainFrame()._id) {
-          pagesToClose.push(pages[i]);
+      const pages = await this.browser().pages();
+      for (const pageTest of pages) {
+        if (pageTest.mainFrame()._id != page.mainFrame()._id) {
+          await pageTest.close();
         }
-      }
-      for (var i = 0; i < pagesToClose.length; i++) {
-        await pagesToClose[i].close();
       }
     };
 
@@ -166,6 +184,51 @@ class UndetectableBrowser {
       const fingerprintChecker = new CheckFingerprint();
       return await fingerprintChecker.runFingerprintChecker(page, screenshot);
     };
+    page.checkCaptcha = async function checkCaptcha() {
+      const captchaTester = new CaptchaTester();
+      return await captchaTester.checkCaptcha(page);
+    };
+    page.messureSpeed = async function messureSpeed(url) {
+      if (!url) url = "https://www.google.com";
+      await Promise.all([page.coverage.startJSCoverage(), page.coverage.startCSSCoverage()]);
+      const startTime = Date.now();
+      await page.navigate(url);
+      const loadTime = Date.now() - startTime;
+      const [jsCoverage, cssCoverage] = await Promise.all([page.coverage.stopJSCoverage(), page.coverage.stopCSSCoverage()]);
+      const totalBytes = [...jsCoverage, ...cssCoverage].reduce((acc, entry) => acc + entry.text.length, 0);
+      const scriptsCount = jsCoverage.length;
+      const stylesCount = cssCoverage.length;
+
+      console.log(`Page Load Time: ${loadTime} ms`);
+      console.log(`Number of Scripts: ${scriptsCount}`);
+      console.log(`Number of Styles: ${stylesCount}`);
+      console.log(`Total Bytes Transferred: ${totalBytes} bytes`);
+
+      return { loadTime, scriptsCount, stylesCount, totalBytes };
+    };
+
+    page.setupURLBlocker = async function setupURLBlocker(urls) {
+      if (urls.length == 0) {
+        console.log("You must pass an array of urls that you want to block");
+        return;
+      }
+      this.adblockURLs = urls;
+      const pages = await this.browser().pages();
+      for (const pageToProtect of pages) {
+        await page.setRequestInterception(true);
+        page.on("request", (interceptedRequest) => {
+          if (interceptedRequest.isInterceptResolutionHandled()) return;
+          const url = interceptedRequest.url();
+          for (const urlParam of this.adblockURLs) {
+            if (url.includes(urlParam)) {
+              interceptedRequest.abort();
+              return;
+            }
+          }
+          interceptedRequest.continue();
+        });
+      }
+    };
 
     page.makeid = function makeid(length) {
       let result = "";
@@ -190,8 +253,20 @@ class UndetectableBrowser {
 
   async getBrowser() {
     const browser = await this.browser;
-    return await this.extendBrowser(browser);
+    this.browser = await this.extendBrowser(browser);
+    return this.browser;
   }
+}
+
+async function searchSelectorOrNextIframe(iframe, selector) {
+  const frame = await iframe.contentFrame();
+  const potentialElement = await frame.$(selector);
+  if (potentialElement) return potentialElement;
+  const iframes = await frame.$$("iframe");
+  for (const iframe of iframes) {
+    return await searchSelectorOrNextIframe(iframe, selector);
+  }
+  return false;
 }
 
 function generateRandomPath(startX, startY, endX, endY, steps) {

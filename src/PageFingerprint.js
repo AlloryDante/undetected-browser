@@ -33,7 +33,8 @@ class CheckFingerprint {
 
     if (screenshot) {
       if (report.general == "bad") {
-        fs.mkdirSync("./fingerprint_reports/");
+        if (!fs.existsSync("./fingerprint_reports/")) fs.mkdirSync("./fingerprint_reports/");
+
         await await page.screenshot({
           path: `./fingerprint_reports/screenshot_full.jpg`,
           fullPage: true,

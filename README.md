@@ -26,10 +26,22 @@ NOTE: You can use any driver powered by puppeteer like pupeteer-extra or puppete
 
 ```javascript
 const UndetectableBrowser = require("undetected-browser");
-const pupeteer = require("puppeteer");
+
+const puppeteer = require("puppeteer");
+OR;
+const puppeteer = require("puppeteer-extra");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+puppeteer.use(StealthPlugin());
+OR;
+const { plugin } = require("puppeteer-with-fingerprints");
+const fingerprint = await plugin.fetch("", {
+  tags: ["Microsoft Windows", "Chrome"],
+});
+plugin.useFingerprint(fingerprint);
+const puppeteer = plugin;
 
 async function init() {
-  const UndetectableBMS = new UndetectableBrowser(pupeteer.launch({ headless: false }));
+  const UndetectableBMS = new UndetectableBrowser(puppeteer.launch({ headless: false }));
   const browser = await UndetectableBMS.getBrowser();
   const page = await browser.newPage();
 
@@ -64,6 +76,49 @@ page.simulateMouseClick - human-like smart click with random mouse movements. Th
 ```javascript
 await page.simulateMouseClick(selector);
 ex: await page.simulateMouseClick('button[type="submit"]');
+```
+
+page.smartWaitForSelector - it tries to find the selector. If it cannot find it it will use page.waitForSelector to wait for it. If waitForSelector timeouts it will await the amount of seconds you specify. This method does not throw errors.
+
+```javascript
+await page.smartWaitForSelector(selector, delays);
+ex: await page.smartWaitForSelector('button[type="submit"]', 4000);
+```
+
+page.$$$ - it tries to find an element in hidden document like iframes or shadow based to your selector.ALERT! It only works with iframes at the moment
+
+```javascript
+await page.$$$(selector);
+ex: await page.$$$('button[type="submit"]');
+```
+
+page.setupURLBlocker - will help you block resources urls.
+
+```javascript
+await page.setupURLBlocker(urls);
+ex: await page.setupURLBlocker(["test.js", ".svg", "google.com"]);
+```
+
+### CHECKERS
+
+page.checkFingerprint - will generate a report via pixelscan.net about the browser fingeprint. You can pass it a bool to save a screenshot of the image if the fingeprint is bad
+
+```javascript
+await page.checkFingerprint(screenshot);
+ex: await page.checkFingerprint(true);
+```
+
+page.checkCaptcha - will check your fingerprint on both Cloudflare and Arkose Captcha. Both providers are the best at detecting bots and their report will indicate how good is your scraper.
+
+```javascript
+const result = await page.checkCaptcha();
+```
+
+page.messureSpeed - will check page latecy. You can specify an url for speedtest. If not google.com will be used
+
+```javascript
+await page.messureSpeed(url);
+ex: await page.messureSpeed("https://github.com/");
 ```
 
 ### BETA METHODS
@@ -142,10 +197,9 @@ await page.getRandomInt(min, max);
 
 ## TODO LIST
 
-- Implement url ad blocking
-
-- Fingerprint checker
-
-- Proxy checker
-
-- Latency checker
+- Shadowroot for page.$$$
+- Implement page.$$$$ (get all elements matching selector)
+- Restructure project in files
+- Implement smart page wait internally
+- Check fp uniqueness
+- implement randomSleep method
