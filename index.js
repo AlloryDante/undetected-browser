@@ -1,3 +1,5 @@
+const CheckFingerprint = require("./src/PageFingerprint");
+
 class UndetectableBrowser {
   constructor(_browser) {
     this.browser = _browser;
@@ -19,15 +21,17 @@ class UndetectableBrowser {
   }
 
   extendPage(page) {
-    const { goto: originalGoto } = page;
     page.mousePos = { x: 0, y: 0 };
 
     page.sleep = function sleep(time) {
       return new Promise((resolve) => setTimeout(resolve, time));
     };
 
-    page.navigate = async function navigate(url) {
+    page.navigate = async function navigate(url, delay) {
       await Promise.all([page.waitForNavigation({ waitUntil: ["load", "networkidle2"] }), page.goto(url)]);
+      if (delay) {
+        await page.sleep(delay);
+      }
     };
     page.waitToLoad = async function navigate(url) {
       await page.waitForNavigation({ waitUntil: ["load", "networkidle2"] });
@@ -156,6 +160,11 @@ class UndetectableBrowser {
         }
       });
       return Promise.race([functionCallback(), timeoutPromise]).finally(() => clearTimeout(timer));
+    };
+
+    page.checkFingerprint = async function checkFingerprint(screenshot) {
+      const fingerprintChecker = new CheckFingerprint();
+      return await fingerprintChecker.runFingerprintChecker(page, screenshot);
     };
 
     page.makeid = function makeid(length) {
