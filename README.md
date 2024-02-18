@@ -26,22 +26,10 @@ NOTE: You can use any driver powered by puppeteer like pupeteer-extra or puppete
 
 ```javascript
 const UndetectableBrowser = require("undetected-browser");
-
 const puppeteer = require("puppeteer");
-OR;
-const puppeteer = require("puppeteer-extra");
-const StealthPlugin = require("puppeteer-extra-plugin-stealth");
-puppeteer.use(StealthPlugin());
-OR;
-const { plugin } = require("puppeteer-with-fingerprints");
-const fingerprint = await plugin.fetch("", {
-  tags: ["Microsoft Windows", "Chrome"],
-});
-plugin.useFingerprint(fingerprint);
-const puppeteer = plugin;
 
 async function init() {
-  const UndetectableBMS = new UndetectableBrowser(puppeteer.launch({ headless: false }));
+  const UndetectableBMS = new UndetectableBrowser(await puppeteer.launch({ headless: false }));
   const browser = await UndetectableBMS.getBrowser();
   const page = await browser.newPage();
 
