@@ -22,6 +22,10 @@ class ScanFingerprint {
         target: ["getByteFrequencyData", "getByteTimeDomainData", "getFloatFrequencyData", "getFloatTimeDomainData"],
         type: "Audio",
       });
+      hook(() => OfflineAudioContext, {
+        target: ["startRendering"],
+        type: "Audio",
+      });
       hook(() => AudioBuffer, {
         target: ["copyFromChannel", "getChannelData"],
         type: "Audio",
@@ -34,6 +38,10 @@ class ScanFingerprint {
       hook(() => BiquadFilterNode, {
         target: ["getFrequencyResponse"],
         type: "Audio",
+      });
+      hook(() => HTMLCanvasElement, {
+        target: ["toBlob", "toDataURL"],
+        type: "Canvas",
       });
       hook(() => CanvasRenderingContext2D, {
         target: ["getImageData", "getLineDash", "isPointInPath", "isPointInStroke", "measureText", "quadraticCurveTo", "fillText", "strokeText"],
@@ -73,7 +81,7 @@ class ScanFingerprint {
             const mainFunction = func().prototype[target];
             if (typeof mainFunction != "function") continue;
             func().prototype[target] = function (type) {
-              log(`[FPT DETECTOR] [${opt.type}] ${name}.${target} was called.`);
+              log(`[FPT DETECTOR] [${opt.type}] ${name}.${target} detected on ${window.location.href}.`);
               return mainFunction.apply(this, arguments);
             };
           } catch (error) {
