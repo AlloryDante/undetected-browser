@@ -20,5 +20,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Allory Dante",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+  }
 }

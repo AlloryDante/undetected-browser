@@ -1,4 +1,5 @@
-const CheckFingerprint = require("./src/PageFingerprint");
+const CheckFingerprint = require("./src/FingerprintCheck");
+const ScanFingerprint = require("./src/FingerprintScan");
 const CaptchaTester = require("./src/CaptchaTester");
 
 class UndetectableBrowser {
@@ -188,6 +189,18 @@ class UndetectableBrowser {
       const captchaTester = new CaptchaTester();
       return await captchaTester.checkCaptcha(page);
     };
+
+    page.scanFingerprintAttempts = async function scanFingerprintAttempts() {
+      let fptScanner;
+      if (!page.fptScanner) {
+        fptScanner = new ScanFingerprint();
+        page.fptScanner = fptScanner;
+      } else {
+        fptScanner = page.fptScanner;
+      }
+      return await fptScanner.setupFingerprintScanner(page);
+    };
+
     page.messureSpeed = async function messureSpeed(url) {
       if (!url) url = "https://www.google.com";
       await Promise.all([page.coverage.startJSCoverage(), page.coverage.startCSSCoverage()]);

@@ -109,6 +109,15 @@ await page.messureSpeed(url);
 ex: await page.messureSpeed("https://github.com/");
 ```
 
+### SCANNERS
+
+page.scanFingerprintAttempts - Will setup a fingerprint scanner that will output every fingerprint attempt from a page
+
+```javascript
+await page.scanFingerprintAttempts();
+await page.navigate("https://browserleaks.com/canvas");
+```
+
 ### BETA METHODS
 
 page.getElementWithInnerText - search an element based to the type of html object and the inner text Returns CDPElementHandle. The innerText must be EXACT!
