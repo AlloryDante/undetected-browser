@@ -1,44 +1,42 @@
 const UndetectableBrowser = require("./index");
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
-const { secure, SecurePage } = require("secure-puppeteer");
 puppeteer.use(StealthPlugin());
 
-async function test() {
-  const UndetectableBMS = new UndetectableBrowser(await puppeteer.launch({ headless: false }));
-  const browser = await UndetectableBMS.getBrowser();
-  const page = await browser.newPage();
-  await page.scanFingerprintAttempts(true);
-  await page.navigate("https://browserleaks.com/canvas");
+describe("UndetectableBrowser", () => {
+  let browser = null;
+  let page = null;
+  beforeAll(async () => {
+    const UndetectableBMS = new UndetectableBrowser(await puppeteer.launch({ headless: true }));
+    browser = await UndetectableBMS.getBrowser();
+    page = await browser.newPage();
+    await page.goto(`https://reviewer.eugenebos.com/automation-test`);
+  });
+  afterAll(async () => {
+    await browser.close();
+  });
+  describe("Testing Basic Methods", () => {
+    test("Page.sleep - should sleep 1 second", async () => {
+      expect(page.sleep(1000)).resolves.not.toThrow();
+    });
 
-  // await page.evaluateOnNewDocument(() => {
-  //   function myFunction() {
-  //     console.log("Hello from myFunction!");
-  //     const mainFunction = HTMLCanvasElement.prototype.toDataURL;
+    test("page.repeatFunctionByAmount - should throw if tries < 1", async () => {
+      expect(
+        page.repeatFunctionByAmount(() => {
+          throw new Error("test");
+        })
+      ).rejects.toThrow();
+    });
 
-  //     HTMLCanvasElement.prototype.toDataURL = function (type) {
-  //       console.log("Hook Works!");
-  //       return mainFunction.apply(this, arguments);
-  //     };
-  //     // Object.defineProperty(HTMLCanvasElement.prototype.toDataURL, "toString", {
-  //     //   value: function () {
-  //     //     return `function toDataURL() { [native code] }`;
-  //     //   },
-  //     // });
-  //     // HTMLCanvasElement.prototype.toDataURL.toString = `function toDataURL() { [native code] }`;
-  //     // HTMLCanvasElement.prototype.toDataURL.toString.toString = `function toString() { [native code] }`;
-  //     console.log(mainFunction.toString());
-
-  //     return HTMLCanvasElement.prototype.toDataURL;
-  //   }
-
-  //   // Assign a self-executing function expression to the variable
-  //   HTMLCanvasElement.prototype.toDataURL = (function () {
-  //     return myFunction();
-  //   })();
-  // });
-  // page.goto("https://abrahamjuliot.github.io/creepjs/");
-  // //await page.simulateMouseClick('a[href="/canvas"]');
-  // await page.clickElementWithInnerHTML("h4", "WebRTC Leak Test");
-}
-test();
+    test("page.repeatFunctionByAmount - should throw corect error", async () => {
+      expect(
+        page.repeatFunctionByAmount(() => {
+          throw new Error("test");
+        }, 3)
+      ).rejects.toThrowError("test");
+    });
+    test("page.repeatFunctionByAmount - should not throw", async () => {
+      expect(page.repeatFunctionByAmount(() => {}, 3)).resolves.not.toThrow();
+    });
+  });
+});
