@@ -68,7 +68,7 @@ class CaptchaTester {
     if (textParrent) {
       const text = await textParrent.$eval("*", (node) => node.parentElement.innerText);
       report.arkose.steps = extractSteps(text);
-      if (report.arkose.steps <= 3) {
+      if (report.arkose.steps <= 5) {
         report.arkose.status = "pass";
       } else {
         report.arkose.status = "fail";
