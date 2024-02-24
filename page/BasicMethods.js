@@ -1,6 +1,16 @@
 module.exports = function hookBasicMethods(page) {
+  page.getRandomInt = function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+
   page.sleep = function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
+  };
+
+  page.randomSleep = function randomSleep(min, max) {
+    return page.sleep(page.getRandomInt(min, max));
   };
   page.repeatFunctionByAmount = async function repeatFunctionByAmount(functionCallback, numberOfTries, errorMessage) {
     if (numberOfTries < 1) throw new Error("Number of tries cannot be less than 1");
@@ -47,12 +57,6 @@ module.exports = function hookBasicMethods(page) {
       counter += 1;
     }
     return result;
-  };
-
-  page.getRandomInt = function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
   return page;

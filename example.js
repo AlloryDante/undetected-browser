@@ -7,6 +7,9 @@ async function test() {
   const UndetectableBMS = new UndetectableBrowser(await puppeteer.launch({ headless: false }));
   const browser = await UndetectableBMS.getBrowser();
   const page = await browser.newPage();
+  await page.sleep(200);
+  await page.randomSleep(200, 400);
+  //await page.enableMouseDebugWindow(); //doesnt properly work on "https://reviewer.eugenebos.com/automation-test"
   await page.setupURLBlocker(["favicon"]);
   await page.scanFingerprintAttempts(true);
   await page.navigate("https://reviewer.eugenebos.com/automation-test");
@@ -20,15 +23,17 @@ async function test() {
   const selectBox = await page.getElementWithInnerHTML("select", `value="volvo"`);
   selectBox ? console.log("SelectBox found based to inner HTML") : console.log("SelectBox not found based to inner HTML");
 
-  // await page.simulateTyping("#textInput", "I am a super cool mousepad.");
-  // await page.simulateMouseClick("#submitButton");
+  await page.simulateTyping("#textInput", "I am a super cool mousepad.");
+  await page.simulateMouseClick("#submitButton");
 
   await page.scanFingerprintAttempts();
-  const fingerprint = await page.checkFingerprint();
+  const fingerprint = await page.checkFingerprint(true);
   console.log(`Fingerprint result:`, fingerprint);
   console.log(`\n`);
   console.log(`Check capcha`, await page.checkCaptcha());
 
+  await browser.close();
+  return;
   // await page.evaluateOnNewDocument(() => {
   //   function myFunction() {
   //     console.log("Hello from myFunction!");

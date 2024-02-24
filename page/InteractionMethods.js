@@ -5,11 +5,19 @@ module.exports = function hookInteractionMethods(page) {
   page.cursor = createCursor(page);
   page.typeInto = typeInto;
 
+  page.enableMouseDebugWindow = async function enableMouseDebugWindow() {
+    await debugWindowForMouse(page);
+  };
+
   page.simulateMouseClick = async function simulateMouseClick(selector) {
     if (!selector) {
       throw new Error(`Selector was not defined for simulating mouse click.`);
     }
     await page.cursor.click(selector, { hesitate: page.getRandomInt(200, 800), waitForClick: 0, moveDelay: 0 });
+  };
+
+  page.toggleRandomMove = async function toggleRandomMove(enabled = true) {
+    await page.cursor.toggleRandomMove(enabled);
   };
 
   page.simulateTyping = async function simulateTyping(selector, text) {
@@ -56,3 +64,56 @@ module.exports = function hookInteractionMethods(page) {
 
   return page;
 };
+
+async function debugWindowForMouse(page) {
+  await page.evaluateOnNewDocument(() => {
+    window.addEventListener("DOMContentLoaded", () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      canvas.style.userSelect = "none";
+      canvas.style.pointerEvents = "none";
+      canvas.style.position = "fixed";
+      canvas.style.left = "0px";
+      canvas.style.top = "0px";
+      canvas.style.width = "" + window.innerWidth + "px";
+      canvas.style.height = "" + window.innerHeight + "px";
+      canvas.style.zIndex = "999999";
+      document.body.appendChild(canvas);
+
+      const cxt = canvas.getContext("2d");
+
+      document.addEventListener("keydown", (e) => {
+        console.log("key DOWN alt:" + e.altKey + " shift:" + e.shiftKey + " ctrl:" + e.ctrlKey + " meta:" + e.metaKey + " code:" + e.code);
+      });
+
+      document.addEventListener("keyup", (e) => {
+        console.log("key UP alt:" + e.altKey + " shift:" + e.shiftKey + " ctrl:" + e.ctrlKey + " meta:" + e.metaKey + " code:" + e.code);
+      });
+
+      document.addEventListener("mousemove", (e) => {
+        cxt.beginPath();
+        cxt.arc(e.clientX, e.clientY, 3, 0, 360, false);
+        cxt.fillStyle = "green";
+        cxt.fill();
+        cxt.closePath();
+      });
+
+      document.addEventListener("mousedown", (e) => {
+        cxt.beginPath();
+        cxt.arc(e.clientX, e.clientY, 15, 0, 360, false);
+        cxt.fillStyle = "black";
+        cxt.fill();
+        cxt.closePath();
+      });
+
+      document.addEventListener("mouseup", (e) => {
+        cxt.beginPath();
+        cxt.arc(e.clientX, e.clientY, 9, 0, 360, false);
+        cxt.fillStyle = "blue";
+        cxt.fill();
+        cxt.closePath();
+      });
+    });
+  });
+}

@@ -1,12 +1,13 @@
 # Undetected Browser
 
-Undetected Browser is a framework that extends Puppeteer capabilities with even more usefull functions. It can run any puppeteer browser instance and its modular system will allow you to build plugins on top of it.
+Undetected Browser is a framework that extends Puppeteer capabilities with even more usefull functions. It can run any puppeteer browser instance and its modular system will allow you to build plugins on top of it. Special thanks to @TheGP and @wiz64 for support on codebase ideeas.
 
 ## Features
 
 - Works with Bablosoft, Puppeteer, Puppeteer Stealth
 - Implement more complicated functions for better selectors, better navigation waiting etc.
 - Mimic human like interaction on the page through special functions
+- Uses @forad/puppeteer-humanize and ghost-cursor to deliver results
 
 ## Installation
 
@@ -34,6 +35,7 @@ async function init() {
   const page = await browser.newPage();
 
   //you can use any page.methods here
+  //please look at example.js
 }
 init();
 ```
@@ -49,31 +51,33 @@ await page.navigate(url);
 page.waitToLoad - better waiting after click handling
 
 ```javascript
+page.click("#someid");
 await page.waitToLoad();
 ```
 
-page.simulateTyping - human-like smart typing with random delays
+page.simulateMouseClick - human-like smart click with benzier mouse movements by [ghost-cursor](https://github.com/Xetera/ghost-cursor)
 
 ```javascript
-await page.simulateTyping(selector, text);
-ex: await page.simulateTyping('input[id="username"]', "MrBeast");
+await page.simulateMouseClick(selector | element);
+ex: await page.simulateMouseClick('button[type="submit"]');
 ```
 
-page.simulateMouseClick - human-like smart click with random mouse movements. This method clicks on x,y coords so its much more reliable than element.click() NOTE: You can also pass an CDPElementHandle type element that you can return with page.$(selector) or getElementWithInnerText or similar
+page.simulateTyping - human-like smart typing with random delays and mistakes by [puppeteer-humanize](https://github.com/force-adverse/puppeteer-humanize/tree/main)
 
 ```javascript
-await page.simulateMouseClick(selector);
-ex: await page.simulateMouseClick('button[type="submit"]');
+await page.simulateTyping(selector | element, text);
+ex: await page.simulateTyping('input[id="username"]', "MrBeast");
 ```
 
 page.smartWaitForSelector - it tries to find the selector. If it cannot find it it will use page.waitForSelector to wait for it. If waitForSelector timeouts it will await the amount of seconds you specify. This method does not throw errors.
 
 ```javascript
-await page.smartWaitForSelector(selector, delays);
-ex: await page.smartWaitForSelector('button[type="submit"]', 4000);
+await page.smartWaitForSelector(selector, delay);
+ex: await page.smartWaitForSelector('button[type="submit"]', 4000); //will wait 4 seconds after it attempts to use page.waitForSelector(no error will be thrown)
+await page.smartWaitForSelector('button[type="submit"]'); // Will throw an error if its unable to wait for the selector
 ```
 
-page.$$$ - it tries to find an element in hidden document like iframes or shadow based to your selector.ALERT! It only works with iframes at the moment
+page.$$$ - it tries to find an element in hidden document like iframes or shadow based to your selector.ALERT! It only works with iframes at the moment(no shadowroot)
 
 ```javascript
 await page.$$$(selector);
@@ -111,7 +115,7 @@ ex: await page.messureSpeed("https://github.com/");
 
 ### SCANNERS
 
-page.scanFingerprintAttempts - Will setup a fingerprint scanner that will output every fingerprint attempt from a page
+page.scanFingerprintAttempts - Will setup a fingerprint scanner that will output every fingerprint scan attempt from a page
 
 ```javascript
 await page.scanFingerprintAttempts();
@@ -123,37 +127,49 @@ await page.navigate("https://browserleaks.com/canvas");
 page.getElementWithInnerText - search an element based to the type of html object and the inner text Returns CDPElementHandle. The innerText must be EXACT!
 
 ```javascript
-await page.getElementWithInnerText(element, innerText);
+await page.getElementWithInnerText(HTMLelementName, innerText);
 ex: await page.getElementWithInnerText("button", "Log in");
 ```
 
 page.getElementWithInnerHTML - search an element based to the type of html object and the innerHTML Returns CDPElementHandle. The innerHTML can be just a word as this method searches elements that contain the innerHTML you specify.
 
 ```javascript
-await page.getElementWithInnerHTML(element, innerHTML);
+await page.getElementWithInnerHTML(HTMLelementName, innerHTML);
 ex: await page.getElementWithInnerText("div", "Shop with cred");
 ```
 
 page.clickElementWithInnerText - Will use smart mouse movement to click on element with same innerText
 
 ```javascript
-await page.clickElementWithInnerText(element, innerHTML);
+await page.clickElementWithInnerText(HTMLelementName, innerHTML);
 ex: await page.clickElementWithInnerText("button", "Log in");
 ```
 
 page.clickElementWithInnerHTML - Will use smart mouse movement to click on element that contain innerHTML
 
 ```javascript
-await page.clickElementWithInnerHTML(element, innerHTML);
+await page.clickElementWithInnerHTML(HTMLelementName, innerHTML);
 ex: await page.clickElementWithInnerHTML("div", "<span>I love sna");
 ```
 
 ### OTHER METHODS
 
+page.enableMouseDebugWindow - used for debugging mouse movement path in a graphical way
+
+```javascript
+await page.enableMouseDebugWindow();
+```
+
 page.sleep - used for script delays
 
 ```javascript
 await page.sleep(3000);
+```
+
+page.randomSleep - used for random script delays
+
+```javascript
+await page.randomSleep(1000, 3000);
 ```
 
 page.closeOtherPages - closes other opened pages in the browser EXCEPT the current one (usefull for cleanup)
@@ -192,11 +208,29 @@ page.getRandomInt - will generate a random int
 await page.getRandomInt(min, max);
 ```
 
+### NOTES:
+
+- If you wish to use ghost cursor on the page object, you already have it defined it as page.cursor so you can do the following:
+
+```javascript
+await page.cursor.click(selector?: string | ElementHandle, options?: ClickOptions);
+await page.cursor.move(selector: string | ElementHandle, options?: MoveOptions)
+await page.cursor.moveTo(destination: Vector)
+```
+
+- If you wish to use @forad/puppeteer-humanize you have the typeInto function defined in page.typeInto so you can do the following:
+
+```javascript
+await page.typeInto(input, text, config);
+```
+
+- If you need a good proxy checker please use [advanced-proxy-checker](https://www.npmjs.com/package/advanced-proxy-checker). I wont implement one in this lib
+
+Please search those libraries for further reference.
+
 ## TODO LIST
 
 - Shadowroot for page.$$$
 - Implement page.$$$$ (get all elements matching selector)
-- Restructure project in files
 - Implement smart page wait internally
 - Check fp uniqueness
-- implement randomSleep method
