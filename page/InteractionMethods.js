@@ -1,8 +1,9 @@
 const { createCursor } = require("ghost-cursor");
-const { typeInto, TypeIntoConfig } = require("@forad/puppeteer-humanize");
+const { typeInto } = require("@forad/puppeteer-humanize");
 
 module.exports = function hookInteractionMethods(page) {
   page.cursor = createCursor(page);
+  page.typeInto = typeInto;
 
   page.simulateMouseClick = async function simulateMouseClick(selector) {
     if (!selector) {

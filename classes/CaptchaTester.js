@@ -13,14 +13,7 @@ class CaptchaTester {
       },
     };
     await page.navigate("https://nopecha.com/demo/turnstile");
-    await page.evaluate(() => {
-      var iframe = document.createElement("iframe");
-      iframe.src = "https://iframe.arkoselabs.com/A5A70501-FCDE-4065-AF18-D9FAF06EF479/index.html?mkt=en";
-      iframe.style.width = "100%";
-      iframe.style.height = "100%";
-      iframe.style.border = "none";
-      document.body.appendChild(iframe);
-    });
+
     await page.sleep(1000);
     const checkBox = await page.$$$('input[type="checkbox"]');
     await page.simulateMouseClick(checkBox);
@@ -41,7 +34,28 @@ class CaptchaTester {
       }
     }
     report.cloudflare = cloudflareResult;
-
+    await page.navigate("https://account.microsoft.com/account");
+    const signInButton = await page.$('a[aria-label="Sign in to your account"]');
+    signInButton.click();
+    await page.waitToLoad();
+    await page.click("#signup");
+    await page.smartWaitForSelector('input[aria-label="New email"]');
+    await page.smartWaitForSelector("#liveSwitch");
+    await page.click("#liveSwitch");
+    await page.sleep(100);
+    await page.type('input[aria-label="New email"]', page.makeid(10));
+    await page.sleep(20);
+    await page.click("#iSignupAction");
+    await page.smartWaitForSelector("#PasswordInput");
+    await page.type("#PasswordInput", page.makeid(10));
+    await page.click("#iSignupAction");
+    await page.smartWaitForSelector("#BirthMonth");
+    await page.select("#BirthMonth", page.getRandomInt(1, 12).toString());
+    await page.select("#BirthDay", page.getRandomInt(1, 31).toString());
+    await page.type("#BirthYear", page.getRandomInt(1970, 2000).toString());
+    await page.click("#iSignupAction");
+    await page.smartWaitForSelector("#enforcementFrame");
+    await page.sleep(2000);
     const startArkose = await page.$$$('button[data-theme="home.verifyButton"]');
     if (startArkose) await page.simulateMouseClick(startArkose);
     await page.sleep(3000);
@@ -60,8 +74,6 @@ class CaptchaTester {
         report.arkose.status = "fail";
       }
     }
-
-    console.log(report);
     return report;
   }
 }
