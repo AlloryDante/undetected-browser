@@ -20,7 +20,7 @@ module.exports = function hookGeneralMethods(page) {
 
   page.setupURLBlocker = async function setupURLBlocker(urls) {
     if (urls.length == 0) {
-      console.log("You must pass an array of urls that you want to block");
+      throw new Error("You must pass an array of urls that you want to block to page.setupURLBlocker");
       return;
     }
     this.adblockURLs = urls;
