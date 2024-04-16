@@ -8,7 +8,7 @@ module.exports = function hookSelectorMethods(page) {
       await page.waitForSelector(selector);
     } catch (error) {
       if (delay) {
-        await delay(delay);
+        await page.sleep(delay);
       } else {
         throw new Error(`page.smartWaitForSelector - Timeout for selector ${selector}`);
       }
