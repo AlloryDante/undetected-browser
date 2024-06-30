@@ -2,7 +2,7 @@ module.exports = function hookSelectorMethods(page) {
   page.smartWaitForSelector = async function smartWaitForSelector(selector = null, delay = 0) {
     if (!selector) throw new Error("No selector supplied to page.smartWaitForSelector");
     try {
-      if (await page.$(selector)) return;
+      if (await page.$(selector)) return selector;
     } catch (error) {}
     try {
       await page.waitForSelector(selector);
