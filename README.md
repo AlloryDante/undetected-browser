@@ -234,3 +234,4 @@ Please search those libraries for further reference.
 - Implement page.$$$$ (get all elements matching selector)
 - Implement smart page wait internally
 - Check fp uniqueness
+- Add support for multiple selectors in certain functions.
