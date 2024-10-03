@@ -2,7 +2,7 @@ module.exports = function hookSelectorMethods(page) {
   page.smartWaitForSelector = async function smartWaitForSelector(selector = null, delay = 0) {
     if (!selector) throw new Error("No selector supplied to page.smartWaitForSelector");
     try {
-      if (await page.$(selector)) return selector;
+      if (await page.$(selector)) return;
     } catch (error) {}
     try {
       await page.waitForSelector(selector);
@@ -45,6 +45,41 @@ module.exports = function hookSelectorMethods(page) {
     }
     console.log(`${element} with ${innerHTML} was not found`);
   };
+
+  page.getAnySelector = async function getAnySelector(selectors) {
+    for (const selector of selectors) {
+      const element = await page.$(selector);
+      if (element) return element;
+    }
+    // console.log(`None of the selectors were found`);
+  };
+
+  page.getAnySelectorName = async function getAnySelectorName(selectors) {
+    for (const selector of selectors) {
+      const element = await page.$(selector);
+      if (element) return selector;
+    }
+    // console.log(`None of the selectors were found`);
+  };
+
+  page.smartWaitForAnySelector = async function smartWaitForAnySelector(selectors, options = {}) {
+    let selectorPromises = selectors.map(async(selector) => { 
+      await page.smartWaitForSelector(selector, options)
+      return selector;
+  });
+    let result = await Promise.race(selectorPromises)
+    return result;
+    console.log(`None of the selectors were found`);
+  };
+
+  page.slowType = async function slowType(selector, text) {
+    for (const char of text) {
+        await page.type(selector, char);
+        await new Promise((r)=>setTimeout(r,100)); // adjust delay as needed
+    }
+  }
+
+
   return page;
 };
 
