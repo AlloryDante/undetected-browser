@@ -61,6 +61,27 @@ module.exports = function hookInteractionMethods(page) {
     const element = await page.getElementWithInnerHTML(selectorElement, innerHTML);
     if (element) await page.simulateMouseClick(element);
   };
+  page.ensureType = async function ensureType(selector, text) {
+    let element;
+    if (typeof selector == "object") {
+      element = selector;
+    } else {
+      element = await page.$(selector);
+    }
+    if (element) {
+      let existingValue = await page.evaluate((el) => el.value, element);
+      console.log(`Existing value: ${existingValue}`);
+      if (existingValue.length > 0) {
+        await element.focus();
+        await element.type("End");
+        for (let i = 0; i < existingValue.length; i++) {
+          await page.keyboard.press("Backspace");
+        }
+      }
+      await page.simulateTyping(element, text);
+
+    }
+  }
 
   return page;
 };
