@@ -1,6 +1,6 @@
 {
   "name": "undetected-browser",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Puppeteer implementation with more anti-detection methods for interacting with websites",
   "keywords": [
     "browser",
