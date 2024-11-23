@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iframe 1</title>
+    <style>
+      div {
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+      }
+
+      button {
+        padding: 5px 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="iframe1Container">
+      This is Iframe Level 1
+      <button id="button3" type="button">Click Me: Iframe Level 1</button>
+      <iframe id="iframe2" src="iframe2.html" style="width: 300px; height: 200px; border: 1px solid black"></iframe>
+    </div>
+    <script>
+      document.querySelector("#button3").addEventListener("click", () => {
+        alert("Button clicked: Iframe Level 1");
+      });
+    </script>
+  </body>
+</html>

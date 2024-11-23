@@ -77,11 +77,28 @@ ex: await page.smartWaitForSelector('button[type="submit"]', 4000); //will wait 
 await page.smartWaitForSelector('button[type="submit"]'); // Will throw an error if its unable to wait for the selector
 ```
 
-page.$$$ - it tries to find an element in hidden document like iframes or shadow based to your selector.ALERT! It only works with iframes at the moment(no shadowroot)
+page.$$$ - it tries to find 1 element in hidden document like iframes or shadow roots based to your selector. This method also searches in nested iframes or shadow roots. You can also check demo/shadowTest.js and play with it...
 
 ```javascript
-await page.$$$(selector);
-ex: await page.$$$('button[type="submit"]');
+await page.$$$(selector, mode); //Will Search iframes & shadowroots
+ex: await page.$$$('button[type="submit"]'); //Will search both iframes and shadowroots
+
+await page.$$$(selector, 1); //Will only search iframes
+ex: await page.$$$('button[type="submit"]', 1);
+await page.$$$(selector, 2); //Will only search Shadowroots
+ex: await page.$$$('button[type="submit"]', 2);
+```
+
+page.$$$$ - it tries to find all elements in hidden document like iframes or shadow roots based to your selector. This method also searches in nested iframes or shadow roots
+
+```javascript
+await page.$$$$(selector, mode); //Will Search iframes & shadowroots
+ex: await page.$$$$('button[type="submit"]'); //Will search both iframes and shadowroots
+
+await page.$$$$(selector, 1); //Will only search iframes
+ex: await page.$$$$('button[type="submit"]', 1);
+await page.$$$$(selector, 2); //Will only search Shadowroots
+ex: await page.$$$$('button[type="submit"]', 2);
 ```
 
 page.setupURLBlocker - will help you block resources urls.
@@ -230,8 +247,8 @@ Please search those libraries for further reference.
 
 ## TODO LIST
 
-- Shadowroot for page.$$$
-- Implement page.$$$$ (get all elements matching selector)
+- ~~Shadowroot for page.$$$~~
+- ~~Implement page.$$$$ (get all elements matching selector)~~
 - Implement smart page wait internally
 - Check fp uniqueness
 - Add support for multiple selectors in certain functions.

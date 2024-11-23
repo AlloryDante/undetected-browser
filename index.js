@@ -16,12 +16,14 @@ class UndetectableBrowser {
     if (browser.undetectableBMSHook) return browser;
 
     browser.undetectableBMSHook = true;
+
     browser.on("targetcreated", async (target) => {
       if (target.type() === "page") {
         const page = await target.page();
         this.extendPage(page);
       }
     });
+
     this.browser = browser;
     return browser;
   }

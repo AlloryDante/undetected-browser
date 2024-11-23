@@ -52,6 +52,7 @@ declare module 'undetected-browser' {
       // Selector Methods 
       smartWaitForSelector: (selector: string | null, delay?: number) => Promise<void>;
       $$$: (selector: string) => Promise<Element | undefined>;
+      $$$$: (selector: string) => Promise<Element[] | undefined>;
       getElementWithInnerText: (element: string, innerText: string) => Promise<Element | undefined>;
       getElementWithInnerHTML: (element: string, innerHTML: string) => Promise<Element | undefined>;
       getAnySelector: (selectors: string[]) => Promise<Element | undefined>;

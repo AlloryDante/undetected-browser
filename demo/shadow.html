@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shadow DOM and Iframes Example</title>
+    <style>
+      div {
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+      }
+
+      button {
+        padding: 5px 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="init"><button id="main" type="button">Main Page</button></div>
+
+    <div id="host1">Host 1</div>
+    <iframe id="iframe1" src="iframe1.html" style="width: 300px; height: 200px; border: 1px solid black"></iframe>
+    <iframe id="iframe2Container" src="iframe1.html" style="width: 300px; height: 200px; border: 1px solid black"></iframe>
+
+    <script>
+      // Shadow DOM Setup
+      const host1 = document.querySelector("#host1");
+      const shadowRoot1 = host1.attachShadow({ mode: "open" });
+      shadowRoot1.innerHTML = `
+        <div id="container1">
+          This is ShadowRoot Level 1
+          <button id="buttonShadow1" type="button">Click Me: Shadow DOM Level 1</button>
+          <div id="host2"></div>
+        </div>
+      `;
+
+      const buttonShadow1 = shadowRoot1.querySelector("#buttonShadow1");
+      buttonShadow1.addEventListener("click", () => {
+        alert("Button clicked: Shadow DOM Level 1");
+      });
+
+      const host2 = shadowRoot1.querySelector("#host2");
+      const shadowRoot2 = host2.attachShadow({ mode: "open" });
+      shadowRoot2.innerHTML = `
+        <div id="container2">
+          This is ShadowRoot Level 2
+          <button id="buttonShadow2" type="button">Click Me: Shadow DOM Level 2</button>
+          <div id="host3"></div>
+        </div>
+      `;
+
+      const buttonShadow2 = shadowRoot2.querySelector("#buttonShadow2");
+      buttonShadow2.addEventListener("click", () => {
+        alert("Button clicked: Shadow DOM Level 2");
+      });
+
+      const host3 = shadowRoot2.querySelector("#host3");
+      const shadowRoot3 = host3.attachShadow({ mode: "open" });
+      shadowRoot3.innerHTML = `
+        <div id="container3">
+          This is ShadowRoot Level 3
+          <button id="buttonShadow3" type="button">Click Me: Shadow DOM Level 3</button>
+        </div>
+      `;
+
+      const buttonShadow3 = shadowRoot3.querySelector("#buttonShadow3");
+      buttonShadow3.addEventListener("click", () => {
+        alert("Button clicked: Shadow DOM Level 3");
+      });
+    </script>
+  </body>
+</html>
