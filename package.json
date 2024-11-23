@@ -16,6 +16,7 @@
     "url": "https://github.com/AlloryDante/undetected-browser.git"
   },
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js test.js"
   },

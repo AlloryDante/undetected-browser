@@ -66,10 +66,9 @@ module.exports = function hookSelectorMethods(page) {
     let selectorPromises = selectors.map(async(selector) => { 
       await page.smartWaitForSelector(selector, options)
       return selector;
-  });
+    });
     let result = await Promise.race(selectorPromises)
     return result;
-    console.log(`None of the selectors were found`);
   };
 
   page.slowType = async function slowType(selector, text) {
@@ -78,7 +77,6 @@ module.exports = function hookSelectorMethods(page) {
         await new Promise((r)=>setTimeout(r,100)); // adjust delay as needed
     }
   }
-
 
   return page;
 };
