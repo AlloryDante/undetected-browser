@@ -44,6 +44,7 @@ declare module 'undetected-browser' {
       clickElementWithInnerText: (selectorElement: string, innerText: string) => Promise<void>;
       clickElementWithInnerHTML: (selectorElement: string, innerHTML: string) => Promise<void>;
       ensureType: (selector: string | Element, text: string) => Promise<Page>;
+      ensureTypeSafe: (selector: string | Element, text: string) => Promise<Page>;
 
       // Navigation Methods
       navigate: (url: string, delay?: number) => Promise<void>;
